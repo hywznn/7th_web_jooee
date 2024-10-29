@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 
 const Container = styled.div`
   width: 100%;
-  height: calc(100vh - 80px); // Navbar 높이를 제외한 영역을 가득 채움
+  height: 100vh
   background-color: black;
   color: white;
   padding: 20px;
@@ -24,11 +24,13 @@ const ImgContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  padding: 20px;
 `;
 
 const ImgWrapper = styled(Link)`
   position: relative;
   width: 100%;
+  object-fit: cover;
   height: 200px;
 `;
 

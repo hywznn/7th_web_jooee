@@ -8,10 +8,6 @@ const NavbarContainer = styled.div`
   background-color: rgba(19, 21, 23);
   height: 80px;
   padding-left: 30px;
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 
   @media (max-width: 768px) {
     flex-direction: column;

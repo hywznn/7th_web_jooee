@@ -9,7 +9,6 @@ const SidebarContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-top: 20px;
-  min-height: 100%; // 높이 맞춤
 
   @media (max-width: 768px) {
     width: 60px;

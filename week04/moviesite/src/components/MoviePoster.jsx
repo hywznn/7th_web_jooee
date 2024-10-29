@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const PosterContainer = styled.div`
@@ -39,11 +40,15 @@ const MovieDate = styled.span`
 
 const MoviePoster = ({ movie }) => {
   const [isHover, setIshover] = useState(false);
-
+  const navigate = useNavigate();
+  const handleNavigation = () => {
+    navigate(`/movies/${movie.id}`);
+  };
   return (
     <PosterContainer
       onMouseEnter={() => setIshover(true)}
       onMouseLeave={() => setIshover(false)}
+      onClick={handleNavigation}
     >
       <PosterImageWrapper>
         <PosterImage

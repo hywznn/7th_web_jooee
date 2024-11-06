@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import img1 from "../assets/uridareun.png";
-import img2 from "../assets/uridareun.png";
-import img3 from "../assets/uridareun.png";
-import img4 from "../assets/uridareun.png";
+import img1 from "../../assets/uridareun.png";
+import img2 from "../../assets/uridareun.png";
+import img3 from "../../assets/uridareun.png";
+import img4 from "../../assets/uridareun.png";
 import { Link } from "react-router-dom";
 
 const Container = styled.div`

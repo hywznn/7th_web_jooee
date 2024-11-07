@@ -1,46 +1,22 @@
-import { useState } from "react";
+import { useTodoContext } from "./TodoContext";
 import "./App.css";
 
 function App() {
-  const [todos, setTodos] = useState([
-    { id: 1, task: "투두 만들어보기" },
-    { id: 2, task: "회원 혜원 혜윤 건 찬민" },
-  ]);
-  const [text, setText] = useState("");
-  const [editingId, setEditingId] = useState("");
-  const [editText, setEditText] = useState("");
+  const {
+    todos,
+    text,
+    setText,
+    editingId,
+    setEditingId,
+    editText,
+    setEditText,
+    addTodo,
+    deleteTodo,
+    updateTodo,
+  } = useTodoContext();
 
-  // 렌더링 방지
   const handleSubmit = (e) => {
     e.preventDefault();
-  };
-
-  // 1. 추가하기
-  const addTodo = () => {
-    if (text.trim().length > 0) {
-      // text.length.trim을 text.trim().length로 변경
-      setTodos((prev) => [
-        ...prev,
-        { id: Math.floor(Math.random() * 100) + 2, task: text },
-      ]);
-      setText("");
-    } else {
-      alert("빈 문자열은 추가할 수 없습니다.");
-    }
-  };
-
-  // 2. 삭제하기
-  const deleteTodo = (id) => {
-    setTodos((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // 3. 수정하기
-  const updateTodo = (id, text) => {
-    setTodos((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, task: text } : item))
-    );
-    setEditingId("");
-    setEditText("");
   };
 
   return (
@@ -53,22 +29,20 @@ function App() {
           onChange={(e) => setText(e.target.value)}
           placeholder="새로운 할 일 입력"
         />
-        <button className="add-btn" onClick={() => addTodo()} type="submit">
+        <button className="add-btn" onClick={addTodo} type="submit">
           할 일 등록
         </button>
       </form>
       <div className="todo-list">
         {todos.map((todo) => (
           <div className="todo-item" key={todo.id}>
-            {/* 수정 중이 아닐 때 */}
-            {editingId !== todo.id && (
+            {/* If not editing */}
+            {editingId !== todo.id ? (
               <div className="todo-text">
                 <p>{todo.id}.</p>
                 <p>{todo.task}</p>
               </div>
-            )}
-            {/* 수정 중일 때 */}
-            {editingId === todo.id && (
+            ) : (
               <div className="todo-edit">
                 <p>{todo.id}.</p>
                 <input
@@ -80,26 +54,22 @@ function App() {
             )}
             <div className="todo-actions">
               {editingId === todo.id ? (
-                <>
-                  <button
-                    className="save-btn"
-                    onClick={() => updateTodo(editingId, editText)}
-                  >
-                    수정 완료
-                  </button>
-                </>
+                <button
+                  className="save-btn"
+                  onClick={() => updateTodo(editingId, editText)}
+                >
+                  수정 완료
+                </button>
               ) : (
-                <>
-                  <button
-                    className="edit-btn"
-                    onClick={() => {
-                      setEditingId(todo.id);
-                      setEditText(todo.task); // 수정 시 기존 텍스트를 설정
-                    }}
-                  >
-                    수정 진행
-                  </button>
-                </>
+                <button
+                  className="edit-btn"
+                  onClick={() => {
+                    setEditingId(todo.id);
+                    setEditText(todo.task);
+                  }}
+                >
+                  수정 진행
+                </button>
               )}
               <button
                 className="delete-btn"

@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import useForm from "../../hooks/useForm"; // 위에서 정의한 useForm 훅
-import { validateLogin } from "../../utils/validate"; // 검증 함수
+import useForm from "../../hooks/useForm";
+import { validateLogin } from "../../utils/validate";
+import serverApi from "../../apis/serverApi"; // 수정된 axios 인스턴스 가져오기
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +14,7 @@ const Container = styled.div`
   color: white;
 `;
 
-const Form = styled.div`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,15 +62,35 @@ const ErrorText = styled.p`
 `;
 
 const LoginPage = () => {
+  const [apiError, setApiError] = useState("");
   const { values, errors, touched, getTextInputProps } = useForm(
     { email: "", password: "" },
     validateLogin
   );
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (Object.keys(errors).length === 0) {
-      console.log("폼 데이터 제출:", values);
+      try {
+        // 수정된 serverApi 인스턴스를 사용하여 로그인 API 호출
+        const response = await serverApi.post("/auth/login", {
+          email: values.email,
+          password: values.password,
+        });
+
+        // 성공 시 토큰 저장
+        const { accessToken, refreshToken } = response.data;
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        // 메인 페이지로 이동
+        window.location.href = "/main";
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "로그인 중 문제가 발생했습니다.";
+        setApiError(errorMessage);
+        console.error("로그인 실패:", errorMessage);
+      }
     } else {
       console.log("유효하지 않은 입력값:", errors);
     }
@@ -93,6 +114,7 @@ const LoginPage = () => {
         {touched.password && errors.password && (
           <ErrorText>{errors.password}</ErrorText>
         )}
+        {apiError && <ErrorText>{apiError}</ErrorText>}
         <Button type="submit">로그인</Button>
       </Form>
     </Container>

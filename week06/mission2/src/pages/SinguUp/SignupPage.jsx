@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import useForm from "../../hooks/useForm"; // useForm 훅을 가져옵니다.
+import useForm from "../../hooks/useForm";
+import validateSignUp from "../../utils/validateSignUp"; // 파일 이름 수정
+import serverApi from "../../apis/serverApi"; // axios 인스턴스 가져오기
 
-// 스타일 컴포넌트 정의
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -31,12 +32,10 @@ const Title = styled.h2`
 const Input = styled.input`
   width: 300px;
   padding: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   border: none;
   border-radius: 5px;
   outline: none;
-  background-color: #2a2a2a;
-  color: white;
 `;
 
 const Button = styled.button`
@@ -62,43 +61,32 @@ const ErrorText = styled.p`
   margin-bottom: 10px;
 `;
 
-// 유효성 검사 함수
-const validateSignUp = (values) => {
-  const errors = {};
-  const emailPattern = /^[A-Za-z0-9_.+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-.]+$/;
-
-  if (!values.email) {
-    errors.email = "이메일은 필수 입력 항목입니다.";
-  } else if (!emailPattern.test(values.email)) {
-    errors.email = "올바른 이메일 형식이 아닙니다. 다시 확인해주세요.";
-  }
-
-  if (!values.password) {
-    errors.password = "비밀번호는 필수 입력 항목입니다.";
-  } else if (values.password.length < 8 || values.password.length > 16) {
-    errors.password = "비밀번호는 8자 이상 16자 이하로 입력해주세요.";
-  }
-
-  if (!values.confirmPassword) {
-    errors.confirmPassword = "비밀번호 확인은 필수 입력 항목입니다.";
-  } else if (values.password !== values.confirmPassword) {
-    errors.confirmPassword = "비밀번호가 일치하지 않습니다.";
-  }
-
-  return errors;
-};
-
-const SignUpPage = () => {
-  const initialValues = { email: "", password: "", confirmPassword: "" };
-  const { values, errors, touched, handleChange, handleBlur } = useForm(
-    initialValues,
-    validateSignUp
+const SignupPage = () => {
+  const [apiError, setApiError] = useState("");
+  const { values, errors, touched, getTextInputProps } = useForm(
+    { email: "", password: "", confirmPassword: "" },
+    validateSignUp // validateSignUp 함수로 입력값 검증
   );
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (Object.keys(errors).length === 0) {
-      console.log("회원가입 성공:", values);
+      try {
+        // 올바른 형식으로 데이터 전달
+        const response = await serverApi.post("/auth/register", {
+          email: values.email,
+          password: values.password,
+          passwordCheck: values.confirmPassword, // confirmPassword를 string으로 전달
+        });
+
+        console.log("회원가입 성공:", response.data);
+        window.location.href = "/login"; // 로그인 페이지로 이동
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "회원가입 중 문제가 발생했습니다.";
+        setApiError(errorMessage);
+        console.error("회원가입 실패:", errorMessage);
+      }
     } else {
       console.log("유효하지 않은 입력값:", errors);
     }
@@ -111,19 +99,13 @@ const SignUpPage = () => {
         <Input
           type="email"
           placeholder="이메일을 입력해주세요"
-          name="email"
-          value={values.email}
-          onChange={handleChange}
-          onBlur={handleBlur}
+          {...getTextInputProps("email")}
         />
         {touched.email && errors.email && <ErrorText>{errors.email}</ErrorText>}
         <Input
           type="password"
           placeholder="비밀번호를 입력해주세요"
-          name="password"
-          value={values.password}
-          onChange={handleChange}
-          onBlur={handleBlur}
+          {...getTextInputProps("password")}
         />
         {touched.password && errors.password && (
           <ErrorText>{errors.password}</ErrorText>
@@ -131,18 +113,16 @@ const SignUpPage = () => {
         <Input
           type="password"
           placeholder="비밀번호를 다시 입력해주세요"
-          name="confirmPassword"
-          value={values.confirmPassword}
-          onChange={handleChange}
-          onBlur={handleBlur}
+          {...getTextInputProps("confirmPassword")}
         />
         {touched.confirmPassword && errors.confirmPassword && (
           <ErrorText>{errors.confirmPassword}</ErrorText>
         )}
-        <Button type="submit">제출</Button>
+        {apiError && <ErrorText>{apiError}</ErrorText>}
+        <Button type="submit">회원가입</Button>
       </Form>
     </Container>
   );
 };
 
-export default SignUpPage;
+export default SignupPage;

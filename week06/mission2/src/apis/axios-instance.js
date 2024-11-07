@@ -4,7 +4,7 @@ const axiosInstance = axios.create({
   headers: {
     Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,
   },
-  baseURL: import.meta.env.VITE_MOVIE_API_URL,
+  baseURL: import.meta.env.VITE_MOVIE_API_URL, // 영화 API에 사용
 });
 
-export { axiosInstance };
+export default axiosInstance;

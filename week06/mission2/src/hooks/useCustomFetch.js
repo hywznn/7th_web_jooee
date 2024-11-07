@@ -1,8 +1,6 @@
+// src/hooks/useCustomFetch.js
 import { useEffect, useState } from "react";
-import { axiosInstance } from "../apis/axios-instance";
-
-//최종목표
-//const { data, isLoading, isError } = useCustomFetch(`url`);
+import movieApi from "../apis/axios-instance"; // 영화 API 인스턴스 가져오기
 
 const useCustomFetch = (url) => {
   const [data, setData] = useState([]);
@@ -10,19 +8,23 @@ const useCustomFetch = (url) => {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
+    if (!url) return;
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const reponse = await axiosInstance.get(url);
-        setData(reponse.data);
+        const response = await movieApi.get(url);
+        setData(response.data);
       } catch (error) {
-        setIsError(true); // 기본값이 false니까
+        console.error("데이터를 가져오는 중 오류가 발생했습니다.", error);
+        setIsError(true);
       } finally {
-        setIsLoading(false); // 결론적으로 다시 되돌아가는
+        setIsLoading(false);
       }
     };
+
     fetchData();
-  }, [url]); // useEffect 항상 디펜던시가 실행되어야함
+  }, [url]);
 
   return { data, isLoading, isError };
 };
